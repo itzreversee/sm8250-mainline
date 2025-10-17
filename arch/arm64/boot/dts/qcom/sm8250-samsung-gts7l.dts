@@ -1,0 +1,147 @@
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/arm/qcom,ids.h>
+#include <dt-bindings/regulator/qcom,rpmh-regulator.h>
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <dt-bindings/phy/phy.h>
+#include "sm8250.dtsi"
+#include "pm8150.dtsi"
+#include "pm8150b.dtsi"
+#include "pm8150l.dtsi"
+#include "pm8009.dtsi"
+
+/ {
+  model = "Samsung GTS7L PROJECT - PV REV0.4 (board-id,7)";
+	compatible = "samsung,gts7l", "qcom,kona", "qcom,sm8250";
+  chassis-type = "tablet";
+
+	qcom,msm-id = <0x164 0x10000>, <0x164 0x20001>;
+	qcom,board-id = <0x08 0x07>;
+
+  chosen {
+    #address-cells = <2>;
+	  #size-cells = <2>;
+		stdout-path = "framebuffer0";
+
+    framebuffer0: framebuffer@9c000000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0x9c000000 0x0 (2560 * 1600 * 4)>;
+			width = <2560>;
+			height = <1600>;
+			stride = <(1600 * 4)>;
+			format = "a8r8g8b8";
+		};
+  };
+
+  gpio-keys: gpio-keys {
+    compatible = "gpio-keys";
+
+    vol_up {
+      label = "Volume Up";
+      gpios = <&pm8150_gpios 3 GPIO_ACTIVE_LOW>;
+      linux,code = <KEY_VOLUMEUP>;
+      debounce-interval = <15>;
+      linux,can-disable;
+      gpio-key,wakeup;
+    }
+    
+    vol_down {
+      label = "Volume Down";
+      gpios = <&pm8150_gpios 4 GPIO_ACTIVE_LOW>;
+      linux,code = <KEY_VOLUMEDOWN>;
+      debounce-interval = <15>;
+      linux,can-disable;
+      gpio-key,wakeup;
+    }
+  }
+
+  reserved-memory {
+		xbl_aop_region@80700000 {
+			reg = <0x00 0x80603000 0x00 0x25d000>;
+			no-map;
+		};
+
+    ramoops@9FA00000 {
+			compatible = "ramoops";
+			reg = <0x00 0x9fa00000 0x00 0x100000>;
+			record-size = <0x40000>;
+			console-size = <0x40000>;
+			ftrace-size = <0x40000>;
+			pmsg-size = <0x40000>;
+      no-map;
+		};
+  }
+}
+
+&usb_1 {
+	/* USB 2.0 only */
+	qcom,select-utmi-as-pipe-clk;
+	status = "okay";
+};
+
+&usb_1_dwc3 {
+	dr_mode = "otg";
+	maximum-speed = "high-speed";
+	/* Remove USB3 phy */
+	phys = <&usb_1_hsphy>;
+	phy-names = "usb2-phy";
+	usb-role-switch;
+};
+
+&usb_1_hsphy {
+	vdda-pll-supply = <&vreg_l5a_0p88>;
+	vdda18-supply = <&vreg_l12a_1p8>;
+	vdda33-supply = <&vreg_l2a_3p1>;
+	status = "okay";
+};
+
+&usb_1_dwc3_hs_out {
+	remote-endpoint = <&pm8150b_hs_in>;
+};
+
+&usb_2 {
+	/* USB 2.0 only */
+	qcom,select-utmi-as-pipe-clk;
+	status = "okay";
+};
+
+&usb_2_dwc3 {
+	dr_mode = "host";
+	maximum-speed = "high-speed";
+	/* Remove USB3 phy */
+	phys = <&usb_2_hsphy>;
+	phy-names = "usb2-phy";
+};
+
+&usb_2_hsphy {
+	vdda-pll-supply = <&vreg_l5a_0p88>;
+	vdda18-supply = <&vreg_l12a_1p8>;
+	vdda33-supply = <&vreg_l2a_3p1>;
+	status = "okay";
+	pinctrl-0 = <&keyboard_en_state>, <&keyboard_vdd_pin>;
+	pinctrl-names = "default";
+};
+
+&i2c5 {
+  touchscreen@62 {
+    compatible = "novatek,nvt-ts";
+    reg = <0x62>;
+    interrupt-parent = <&tlmm>;
+    interrupts = <0x27 0x2008>;
+
+    novatek,irq-gpio = <&tlmm 15 0x2002>;
+    novatek,resolution = <0x640 0xa00>;
+
+    touchscreen-size-x = <2560>;
+    touchscreen-size-y = <1600>;
+  }
+}
+
+&uart6 {
+  status = "okay";
+
+  bluetooth {
+    compatible = "qca,qca6390-bt";
+  }
+}
