@@ -44,7 +44,7 @@
       debounce-interval = <15>;
       linux,can-disable;
       gpio-key,wakeup;
-    }
+    };
     
     vol_down {
       label = "Volume Down";
@@ -53,8 +53,8 @@
       debounce-interval = <15>;
       linux,can-disable;
       gpio-key,wakeup;
-    }
-  }
+    };
+  };
 
   reserved-memory {
 		xbl_aop_region@80700000 {
@@ -71,8 +71,8 @@
 			pmsg-size = <0x40000>;
       no-map;
 		};
-  }
-}
+  };
+};
 
 &usb_1 {
 	/* USB 2.0 only */
@@ -135,13 +135,13 @@
 
     touchscreen-size-x = <2560>;
     touchscreen-size-y = <1600>;
-  }
-}
+  };
+};
 
 &uart6 {
   status = "okay";
 
   bluetooth {
     compatible = "qca,qca6390-bt";
-  }
-}
+  };
+};
