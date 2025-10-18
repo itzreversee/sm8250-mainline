@@ -117,6 +117,12 @@
   };
 };
 
+&pm8150b_typec {
+  vdd-pdphy-supply = <&vreg_l2a_3p1>;
+	status = "okay";
+
+}
+
 &usb_1 {
 	/* USB 2.0 only */
 	qcom,select-utmi-as-pipe-clk;
@@ -139,9 +145,11 @@
 	status = "okay";
 };
 
+/*
 &usb_1_dwc3_hs_out {
 	remote-endpoint = <&pm8150b_hs_in>;
 };
+*/
 
 &usb_2 {
 	/* USB 2.0 only */
